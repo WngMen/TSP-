@@ -2,7 +2,6 @@
 //中国34个城市的TSP问题。
 // tsp.cpp : 定义控制台应用程序的入口点。
 //
-
 #include "stdafx.h"
 #include <string.h>
 #include <stdlib.h>
@@ -15,8 +14,6 @@
 #define MAXVALUE 10000   
 #define N 10000
 //unsigned seed = (unsigned)time(0);
-
-
 int Hash[CITY_NUM + 1];
 typedef struct {/*坐标结构*/
 	char flag[10];/*标记城市*/
@@ -30,7 +27,6 @@ MAP map;/*地图变量*/
 typedef struct{
 	int colony[POPSIZE][CITY_NUM + 1];
 	double fitness[POPSIZE];
-
 	double Distance[POPSIZE];//路径实际长度     针对不同的个体的路径总长度
 	int BestRooting[CITY_NUM + 1];//最优城市路径序列
 	double BestFitness;//最优路径适应值
@@ -54,7 +50,6 @@ double Distance(double wd1, double jd1, double wd2, double jd2) {// 根据经纬
 	double h = HaverSin(wd) + cos(wd1)*cos(wd2)*HaverSin(jd);
 	double distance = 2 * asin(sqrt(h)) * R;
 	return distance;
-
 }
 void CalculatDist()
 {			
@@ -130,7 +125,6 @@ void copy(int a[], int b[])
 		a[i] = b[i];
 	}
 }
-
 bool check(TSP &city, int pop, int num, int k)
 {//用来检查新生成的节点是否在当前群体中，0号节点是默认出发节点和终止节点
 	int i;
@@ -140,7 +134,6 @@ bool check(TSP &city, int pop, int num, int k)
 	}
 	return false;//新生成节点没有存在于已经生成的路径中
 }
-
 void InitColony(TSP &city)
 {
 	int i, j, r;
@@ -160,12 +153,10 @@ void InitColony(TSP &city)
 			{
 				r = rand() % (CITY_NUM - 1) + 1;
 			}
-
 			city.colony[i][j] = r;
 		}
 	}
 }
-
 void CalFitness(TSP &city)//计算适应值
 {
 	int i, j;
@@ -177,13 +168,11 @@ void CalFitness(TSP &city)//计算适应值
 			start = city.colony[i][j - 1]; end = city.colony[i][j];
 			city.Distance[i] = city.Distance[i] + CityDistance[start][end];
 		}
-
 		//	city.fitness[i]=pow(1.1,N/city.Distance[i]);
 		city.fitness[i] = N / city.Distance[i];//个体适应值计算
 		if (city.fitness[i]>city.fitness[Best])//求最大适应值也是个体的最优路径
 			Best = i;
 	}
-
 	copy(city.BestRooting, city.colony[Best]);
 	city.BestFitness = city.fitness[Best];
 	city.BestValue = city.Distance[Best];
@@ -210,7 +199,6 @@ void Select(TSP &city)
 		SelectP[i + 1] = SelectP[i] + GaiLv[i] * RAND_MAX;//RAND_MAX是C中stdlib.h中宏定义的一个字符常量：#define RAND_MAX Ox7FFF其值最小为0, 最大为32767
 		//	通常在产生随机小数时可以使用RAND_MAX。
 	}
-
 	memcpy(TempColony[0], city.colony[city.BestNum], sizeof(TempColony[0]));
 	//	copy(TempColony[0],city.colony[city.BestNum]);
 	for (t = 1; t<POPSIZE; t++)
@@ -223,7 +211,6 @@ void Select(TSP &city)
 		}
 		memcpy(TempColony[t], city.colony[i - 1], sizeof(TempColony[t]));
 		//		copy(TempColony[t],city.colony[i-1]);
-
 	}
 	for (i = 0; i<POPSIZE; i++)
 	{
@@ -241,13 +228,11 @@ void Cross(TSP &city, double pc)
 		double s = ((double)(rand() % RAND_MAX)) / RAND_MAX;
 		if (s<pc)
 		{
-
 			ca = rand() % POPSIZE;
 			cb = rand() % POPSIZE;
 			while (cb != ca)cb = rand() % POPSIZE;
 			if (ca == city.BestNum || cb == city.BestNum)
 				continue;
-
 			l = rand() % 17 + 1;
 			a = rand() % (CITY_NUM - l) + 1;
 
@@ -267,8 +252,6 @@ void Cross(TSP &city, double pc)
 					Hash[city.colony[ca][t]] = 1;
 				}
 			}
-
-
 			memset(Hash, 0, sizeof(Hash));
 			Temp2[0] = Temp2[CITY_NUM] = 0;
 			for (j = 1; j <= l; j++)
@@ -276,8 +259,6 @@ void Cross(TSP &city, double pc)
 				Temp2[j] = city.colony[ca][a + j - 1];
 				Hash[Temp2[j]] = 1;
 			}
-
-
 			for (t = 1; t<CITY_NUM; t++)
 			{
 				if (Hash[city.colony[cb][t]] == 0)//当Hash表内的某个城市为空时就是城市的值为0时就可以把cb的值赋给Temp2
@@ -287,17 +268,12 @@ void Cross(TSP &city, double pc)
 					Hash[city.colony[cb][t]] = 1;
 				}
 			}
-
-
-
-
 			//	copy(city.colony[ca],Temp1);
 			//	copy(city.colony[cb],Temp2);
 			memcpy(city.colony[ca], Temp1, sizeof(Temp1));
 			memcpy(city.colony[cb], Temp2, sizeof(Temp2));
 		}
 	}
-
 }
 double GetFittness(int a[CITY_NUM + 1])
 {
@@ -336,7 +312,6 @@ void Mutation(TSP &city, double pm)
 				Temp[m] = Temp[a + b - m];
 				Temp[a + b - m] = t;
 			}
-
 			if (GetFittness(Temp)<GetFittness(city.colony[i]))//是对其进行变异处理，把一个为i的城市圈进行内部交换城市元素，自身变异
 			{
 				a = (rand() % (CITY_NUM - 1)) + 1;
@@ -360,11 +335,9 @@ void Mutation(TSP &city, double pm)
 		}
 	}
 }
-
 void OutPut(TSP &city)
 {
 	int i;
-
 	/*	printf("The population is:\n");
 	for(i=0;i<POPSIZE;i++)
 	{
@@ -375,7 +348,6 @@ void OutPut(TSP &city)
 	printf("    %f\n",city.Distance[i]);
 	}
 	*/
-
 	printf("最短的路径是:\n");
 	for (i = 0; i <= CITY_NUM-1; i++)
 	{
@@ -384,16 +356,13 @@ void OutPut(TSP &city)
 	printf("%s", temp[(city.BestRooting[CITY_NUM])].flag);
 	printf("\n路径长度是:%f\n", (city.BestValue));
 }
-
 void Repeat(double pcross, double pmutation, int MaxEpoc) {
 	TSP city;
 	//srand(seed);
 	CalculatDist();//求城市间两两之间的距离
 				   //	city=(PTSP)malloc(sizeof(TSP));
 	InitColony(city);//生成初始种群
-
 	CalFitness(city);//计算适应值,考虑应该在这里面把最优选出来
-
 	clock_t begin = clock();
 	for (int i = 0; i<MaxEpoc; i++)
 	{
@@ -402,7 +371,6 @@ void Repeat(double pcross, double pmutation, int MaxEpoc) {
 		Cross(city, pcross);//交叉     交叉率一般来说应该比较大，推荐使用80％-95％。
 		Mutation(city, pmutation);//变异       变异率一般来说应该比较小，一般使用0.5％-1％最好。
 		CalFitness(city);//计算适应值
-
 	}
 	clock_t end = clock();
 
